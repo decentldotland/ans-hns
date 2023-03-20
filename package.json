@@ -1,0 +1,26 @@
+{
+  "name": "ans-hns",
+  "version": "0.0.1",
+  "description": "HNS records for ANS domains",
+  "main": "./src/app.js",
+  "scripts": {
+    "start": "echo hello ANS"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/decentldotland/ans-hns.git"
+  },
+  "keywords": [
+    "ANS",
+    "HNS",
+    "domains",
+    "record",
+    "resolver"
+  ],
+  "author": "charmful0x",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/decentldotland/ans-hns/issues"
+  },
+  "homepage": "https://github.com/decentldotland/ans-hns#readme"
+}
