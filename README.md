@@ -9,7 +9,9 @@
 ## About
 Handshake [HNS](https://handshake.org/) records for [ANS](https://ans.gg) domains.
 
-
+## Contract
+- source code: [./contract](./contract)
+- testing deployment: [xJOiXMct9_ARmph7ASEvQUYZshleRN4on6bTNXyrGPg](https://api.exm.dev/read/xJOiXMct9_ARmph7ASEvQUYZshleRN4on6bTNXyrGPg)
 
 ## License
 This projects is licensed under the [MIT License](./LICENSE)
