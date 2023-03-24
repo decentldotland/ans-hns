@@ -132,6 +132,17 @@ export async function handle(state, action) {
     return { state };
   }
 
+  if (input.function === "getDomainRecords") {
+    const { domain } = input;
+
+    const normalizedDomain = _normalizeDomain(domain);
+    const records = state.records.find((record) => record.domain === normalizedDomain);
+
+    return {
+      result: records ? records : {}
+    }
+  }
+
   function _validateAnsDomainSyntax(domain) {
     ContractAssert(/^[a-z0-9]{2,15}$/.test(domain), "ERROR_INVALID_ANS_SYNTAX");
   }
