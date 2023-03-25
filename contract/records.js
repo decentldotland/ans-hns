@@ -6,11 +6,11 @@ export async function handle(state, action) {
 
     ContractAssert(CNAME || A || AAAA || TXT || MX, "ERROR_MISSING_ARGUMENTS");
 
-    CNAME ? _validateDnsRecord(CNAME) : void 0;
-    A ? _validateDnsRecord(A) : void 0;
-    AAAA ? _validateDnsRecord(AAAA) : void 0;
-    TXT ? _validateDnsRecord(TXT) : void 0;
-    MX ? _validateDnsRecord(MX) : void 0;
+    CNAME ? _validateDnsRecord(CNAME, "CNAME") : void 0;
+    A ? _validateDnsRecord(A, "A") : void 0;
+    AAAA ? _validateDnsRecord(AAAA, "AAAA") : void 0;
+    TXT ? _validateDnsRecord(TXT, "TXT") : void 0;
+    MX ? _validateDnsRecord(MX, "MX") : void 0;
 
     await _verifyArSignature(jwk_n, sig);
     const callerDomain = _normalizeDomain(domain);
@@ -34,23 +34,19 @@ export async function handle(state, action) {
 
     if (domainInStateIndex >= 0) {
       CNAME?.name
-        ? state.records[domainInStateIndex].CNAME.push(CNAME)
+        ? state.records[domainInStateIndex].records.push(CNAME)
         : void 0;
-      A?.name ? state.records[domainInStateIndex].A.push(A) : void 0;
-      AAAA?.name ? state.records[domainInStateIndex].AAAA.push(AAAA) : void 0;
-      TXT?.name ? state.records[domainInStateIndex].TXT.push(TXT) : void 0;
-      MX?.name ? state.records[domainInStateIndex].MX.push(MX) : void 0;
+      A?.name ? state.records[domainInStateIndex].records.push(A) : void 0;
+      AAAA?.name ? state.records[domainInStateIndex].records.push(AAAA) : void 0;
+      TXT?.name ? state.records[domainInStateIndex].records.push(TXT) : void 0;
+      MX?.name ? state.records[domainInStateIndex].records.push(MX) : void 0;
 
       return { state };
     }
 
     state.records.push({
       domain: callerDomain,
-      CNAME: CNAME ? [CNAME] : [],
-      A: A ? [A] : [],
-      AAAA: AAAA ? [AAAA] : [],
-      TXT: TXT ? [TXT] : [],
-      MX: MX ? [MX] : [],
+      records: [CNAME, AAAA, A, TXT, MX].filter((record) => record?.type)
     });
 
     return { state };
@@ -61,11 +57,11 @@ export async function handle(state, action) {
 
     ContractAssert(CNAME || A || AAAA || TXT || MX, "ERROR_MISSING_ARGUMENTS");
 
-    CNAME ? _validateDnsRecord(CNAME) : void 0;
-    A ? _validateDnsRecord(A) : void 0;
-    AAAA ? _validateDnsRecord(AAAA) : void 0;
-    TXT ? _validateDnsRecord(TXT) : void 0;
-    MX ? _validateDnsRecord(MX) : void 0;
+    CNAME ? _validateDnsRecord(CNAME, "CNAME") : void 0;
+    A ? _validateDnsRecord(A, "A") : void 0;
+    AAAA ? _validateDnsRecord(AAAA, "AAAA") : void 0;
+    TXT ? _validateDnsRecord(TXT, "TXT") : void 0;
+    MX ? _validateDnsRecord(MX, "MX") : void 0;
 
     await _verifyArSignature(jwk_n, sig);
     const callerDomain = _normalizeDomain(domain);
@@ -90,43 +86,43 @@ export async function handle(state, action) {
     ContractAssert(domainInStateIndex >= 0, "ERROR_DOMAIN_NOT_FOUND");
 
     if (CNAME?.name) {
-      const targetIndex = state.records[domainInStateIndex].CNAME.findIndex(
-        (record) => record.name === CNAME?.name
+      const targetIndex = state.records[domainInStateIndex].records.findIndex(
+        (record) => record.name === CNAME?.name && record?.value === CNAME?.value && record.type === "CNAME"
       );
       ContractAssert(targetIndex >= 0, "ERROR_RECORD_NOT_FOUND");
-      state.records[domainInStateIndex].CNAME.splice(targetIndex, 1);
+      state.records[domainInStateIndex].records.splice(targetIndex, 1);
     }
 
     if (A?.name) {
       const targetIndex = state.records[domainInStateIndex].A.findIndex(
-        (record) => record.name === A?.name
+        (record) => record.name === A?.name && record?.value === A?.value && record.type === "A"
       );
       ContractAssert(targetIndex >= 0, "ERROR_RECORD_NOT_FOUND");
-      state.records[domainInStateIndex].A.splice(targetIndex, 1);
+      state.records[domainInStateIndex].records.splice(targetIndex, 1);
     }
 
     if (AAAA?.name) {
       const targetIndex = state.records[domainInStateIndex].AAAA.findIndex(
-        (record) => record.name === AAAA?.name
+        (record) => record.name === AAAA?.name && record?.value === AAAA?.value && record.type === "AAAA"
       );
       ContractAssert(targetIndex >= 0, "ERROR_RECORD_NOT_FOUND");
-      state.records[domainInStateIndex].AAAA.splice(targetIndex, 1);
+      state.records[domainInStateIndex].records.splice(targetIndex, 1);
     }
 
     if (TXT?.name) {
       const targetIndex = state.records[domainInStateIndex].TXT.findIndex(
-        (record) => record.name === TXT?.name
+        (record) => record.name === TXT?.name && record?.value === TXT?.value && record.type === "TXT"
       );
       ContractAssert(targetIndex >= 0, "ERROR_RECORD_NOT_FOUND");
-      state.records[domainInStateIndex].TXT.splice(targetIndex, 1);
+      state.records[domainInStateIndex].records.splice(targetIndex, 1);
     }
 
     if (MX?.name) {
       const targetIndex = state.records[domainInStateIndex].MX.findIndex(
-        (record) => record.name === MX?.name
+        (record) => record.name === MX?.name && record?.value === MX?.value && record.type === "MX"
       );
       ContractAssert(targetIndex >= 0, "ERROR_RECORD_NOT_FOUND");
-      state.records[domainInStateIndex].MX.splice(targetIndex, 1);
+      state.records[domainInStateIndex].records.splice(targetIndex, 1);
     }
 
     return { state };
@@ -229,7 +225,8 @@ export async function handle(state, action) {
     }
   }
 
-  function _validateDnsRecord(object) {
+  function _validateDnsRecord(object, type) {
+    ContractAssert(object.type === type, "ERROR_INVALID_DNS_TYPE");
     _validateRecordName(object.name);
     _validateRecordName(object.value);
   }
