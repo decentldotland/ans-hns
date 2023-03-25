@@ -11,7 +11,7 @@ Handshake [HNS](https://handshake.org/) records for [ANS](https://ans.gg) domain
 
 ## Contract
 - source code: [./contract](./contract)
-- testing deployment: [BhFY1FFgzkVYlpn55j1ZPzY8Mihb9w_qH7vuWdGMbM0](https://api.exm.dev/read/BhFY1FFgzkVYlpn55j1ZPzY8Mihb9w_qH7vuWdGMbM0)
+- testing deployment: [z6Tl62b7GtCrCdRizzsxwDGgCc1iekVSFQEVZ8ALOsA](https://api.exm.dev/read/z6Tl62b7GtCrCdRizzsxwDGgCc1iekVSFQEVZ8ALOsA)
 
 ## License
 This projects is licensed under the [MIT License](./LICENSE)
