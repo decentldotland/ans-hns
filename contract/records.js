@@ -37,7 +37,9 @@ export async function handle(state, action) {
         ? state.records[domainInStateIndex].records.push(CNAME)
         : void 0;
       A?.name ? state.records[domainInStateIndex].records.push(A) : void 0;
-      AAAA?.name ? state.records[domainInStateIndex].records.push(AAAA) : void 0;
+      AAAA?.name
+        ? state.records[domainInStateIndex].records.push(AAAA)
+        : void 0;
       TXT?.name ? state.records[domainInStateIndex].records.push(TXT) : void 0;
       MX?.name ? state.records[domainInStateIndex].records.push(MX) : void 0;
 
@@ -46,22 +48,16 @@ export async function handle(state, action) {
 
     state.records.push({
       domain: callerDomain,
-      records: [CNAME, AAAA, A, TXT, MX].filter((record) => record?.type)
+      records: [CNAME, AAAA, A, TXT, MX].filter((record) => record?.type),
     });
 
     return { state };
   }
 
   if (input.function === "delRecord") {
-    const { domain, jwk_n, sig, CNAME, A, AAAA, TXT, MX } = input;
+    const { domain, jwk_n, sig, id } = input;
 
-    ContractAssert(CNAME || A || AAAA || TXT || MX, "ERROR_MISSING_ARGUMENTS");
-
-    CNAME ? _validateDnsRecord(CNAME, "CNAME") : void 0;
-    A ? _validateDnsRecord(A, "A") : void 0;
-    AAAA ? _validateDnsRecord(AAAA, "AAAA") : void 0;
-    TXT ? _validateDnsRecord(TXT, "TXT") : void 0;
-    MX ? _validateDnsRecord(MX, "MX") : void 0;
+    ContractAssert(domain || jwk_n || sig || id, "ERROR_MISSING_ARGUMENTS");
 
     await _verifyArSignature(jwk_n, sig);
     const callerDomain = _normalizeDomain(domain);
@@ -85,45 +81,13 @@ export async function handle(state, action) {
 
     ContractAssert(domainInStateIndex >= 0, "ERROR_DOMAIN_NOT_FOUND");
 
-    if (CNAME?.name) {
-      const targetIndex = state.records[domainInStateIndex].records.findIndex(
-        (record) => record.name === CNAME?.name && record?.value === CNAME?.value && record.type === "CNAME"
-      );
-      ContractAssert(targetIndex >= 0, "ERROR_RECORD_NOT_FOUND");
-      state.records[domainInStateIndex].records.splice(targetIndex, 1);
-    }
+    const recordIndex = state.records[domainInStateIndex].records.findIndex(
+      (record) => record.id === id
+    );
 
-    if (A?.name) {
-      const targetIndex = state.records[domainInStateIndex].A.findIndex(
-        (record) => record.name === A?.name && record?.value === A?.value && record.type === "A"
-      );
-      ContractAssert(targetIndex >= 0, "ERROR_RECORD_NOT_FOUND");
-      state.records[domainInStateIndex].records.splice(targetIndex, 1);
-    }
+    ContractAssert(recordIndex >= 0, "ERROR_RECORD_NOT_FOUND");
 
-    if (AAAA?.name) {
-      const targetIndex = state.records[domainInStateIndex].AAAA.findIndex(
-        (record) => record.name === AAAA?.name && record?.value === AAAA?.value && record.type === "AAAA"
-      );
-      ContractAssert(targetIndex >= 0, "ERROR_RECORD_NOT_FOUND");
-      state.records[domainInStateIndex].records.splice(targetIndex, 1);
-    }
-
-    if (TXT?.name) {
-      const targetIndex = state.records[domainInStateIndex].TXT.findIndex(
-        (record) => record.name === TXT?.name && record?.value === TXT?.value && record.type === "TXT"
-      );
-      ContractAssert(targetIndex >= 0, "ERROR_RECORD_NOT_FOUND");
-      state.records[domainInStateIndex].records.splice(targetIndex, 1);
-    }
-
-    if (MX?.name) {
-      const targetIndex = state.records[domainInStateIndex].MX.findIndex(
-        (record) => record.name === MX?.name && record?.value === MX?.value && record.type === "MX"
-      );
-      ContractAssert(targetIndex >= 0, "ERROR_RECORD_NOT_FOUND");
-      state.records[domainInStateIndex].records.splice(targetIndex, 1);
-    }
+    state.records[domainInStateIndex].records.splice(recordIndex, 1);
 
     return { state };
   }
@@ -132,11 +96,13 @@ export async function handle(state, action) {
     const { domain } = input;
 
     const normalizedDomain = _normalizeDomain(domain);
-    const records = state.records.find((record) => record.domain === normalizedDomain);
+    const records = state.records.find(
+      (record) => record.domain === normalizedDomain
+    );
 
     return {
-      result: records ? records : {}
-    }
+      result: records ? records : {},
+    };
   }
 
   function _validateAnsDomainSyntax(domain) {
@@ -173,6 +139,13 @@ export async function handle(state, action) {
     ContractAssert(
       record.trim().length === record.length,
       "ERROR_PROVIDE_VALID_DNS_RECORD_NAME"
+    );
+  }
+
+  function _validateRecordValue(record) {
+    ContractAssert(
+      Object.prototype.toString.call(record) === "[object Object]",
+      "ERROR_INVALID_TYPE"
     );
   }
 
@@ -226,8 +199,9 @@ export async function handle(state, action) {
   }
 
   function _validateDnsRecord(object, type) {
+    object.id = SmartWeave.transaction.id;
     ContractAssert(object.type === type, "ERROR_INVALID_DNS_TYPE");
     _validateRecordName(object.name);
-    _validateRecordName(object.value);
+    _validateRecordValue(object.value);
   }
 }
